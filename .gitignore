@@ -1,0 +1,9 @@
+.DS_Store
+.vagrant/
+logs/ansible*
+__pycache__/
+.molecule/
+.pytest_cache/
+*-console.log
+junit.xml
+mid-linux-container*

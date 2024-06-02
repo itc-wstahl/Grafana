@@ -1,0 +1,68 @@
+---
+- name: Install Grafana Repository
+  ansible.builtin.yum_repository:
+    name: grafana
+    description: Grafana Repository
+    baseurl: https://rpm.grafana.com
+    gpgcheck: true
+    repo_gpgcheck: true
+    gpgkey: https://rpm.grafana.com/gpg.key
+    sslverify: true
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    enabled: true
+
+- name: Install grafana packages
+  ansible.builtin.dnf:
+    name: grafana
+    state: present
+
+- name: Configure Firewall for Grafana
+  ansible.posix.firewalld:
+    port: "{{ item }}"
+    permanent: true
+    state: enabled
+    immediate: true
+  with_items: "{{ grafana_ports }}"
+
+- name: Start Services
+  ansible.builtin.service:
+    name: grafana-server
+    enabled: true
+    state: started
+
+- name: Switch the default (1) org context
+  ansible.builtin.uri:
+    url: http://{{ groups['manager'][0] }}:3000/api/user/using/1
+    user: admin
+    password: admin
+    method: POST
+    force_basic_auth: true
+  register: active_organization
+
+- name: Create a service account
+  ansible.builtin.uri:
+    url: http://{{ groups['manager'][0] }}:3000/api/serviceaccounts
+    user: admin
+    password: admin
+    method: POST
+    force_basic_auth: true
+    status_code: 201
+    body_format: json
+    body: {"name":"sa_monaco", "role": "Admin"}
+  register: sc_account
+
+- name: Create service account token
+  ansible.builtin.uri:
+    url: http://{{ groups['manager'][0] }}:3000/api/serviceaccounts/{{ sc_account.json.id }}/tokens
+    user: admin
+    password: admin
+    method: POST
+    force_basic_auth: true
+    status_code: 200
+    body_format: json
+    body: {"name":"sa_monaco_token"}
+  register: sc_token
+
+- name: Set Service Account Token
+  ansible.builtin.set_fact:
+    sc_account_token: "{{ sc_token.json.key }}"
