@@ -48,10 +48,6 @@
     force_basic_auth: true
   register: sc_found
 
-- name: Output sc_found
-  ansible.builtin.debug:
-    msg: "sc_found: {{ sc_found.json.totalCount }}"
-
 - name: Create a service account
   ansible.builtin.uri:
     url: http://{{ groups['manager'][0] }}:3000/api/serviceaccounts
