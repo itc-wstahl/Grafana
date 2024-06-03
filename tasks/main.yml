@@ -39,6 +39,19 @@
     force_basic_auth: true
   register: active_organization
 
+- name: Search for service account
+  ansible.builtin.uri:
+    url: http://{{ groups['manager'][0] }}:3000/api/serviceaccounts/search?per_page=10&page=1&query=monaco
+    user: admin
+    password: admin
+    method: GET
+    force_basic_auth: true
+  register: sc_found
+
+  - name: Output sc_found
+    ansible.builtin.debug:
+      msg: "sc_found: {{ sc_found }}"
+
 - name: Create a service account
   ansible.builtin.uri:
     url: http://{{ groups['manager'][0] }}:3000/api/serviceaccounts
