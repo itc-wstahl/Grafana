@@ -66,3 +66,10 @@
 - name: Set Service Account Token
   ansible.builtin.set_fact:
     sc_account_token: "{{ sc_token.json.key }}"
+
+- name: Write Service Account to local file
+  ansible.builtin.template:
+    src: sa_account.txt.j2
+    dest: sa_account.txt
+    mode: '0644'
+  delegate_to: localhost
