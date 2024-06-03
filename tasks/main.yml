@@ -50,7 +50,7 @@
 
 - name: Output sc_found
   ansible.builtin.debug:
-    msg: "sc_found: {{ sc_found }}"
+    msg: "sc_found: {{ sc_found.json.totalCount }}"
 
 - name: Create a service account
   ansible.builtin.uri:
