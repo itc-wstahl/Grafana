@@ -63,6 +63,7 @@
     body_format: json
     body: {"name":"sa_monaco", "role": "Admin"}
   register: sc_account
+  when: sc_found.json.totalCount < 1
 
 - name: Create service account token
   ansible.builtin.uri:
@@ -75,10 +76,12 @@
     body_format: json
     body: {"name":"sa_monaco_token"}
   register: sc_token
+  when: sc_found.json.totalCount < 1
 
 - name: Set Service Account Token
   ansible.builtin.set_fact:
     sc_account_token: "{{ sc_token.json.key }}"
+  when: sc_found.json.totalCount < 1
 
 - name: Write Service Account to local file
   ansible.builtin.template:
@@ -86,3 +89,4 @@
     dest: sa_account.txt
     mode: '0644'
   delegate_to: localhost
+  when: sc_found.json.totalCount < 1
